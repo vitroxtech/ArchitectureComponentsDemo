@@ -16,22 +16,39 @@
 
 package it.codingjam.github.di
 
+import android.app.Application
+import dagger.BindsInstance
 import dagger.Component
-import it.codingjam.github.MainActivity
-import it.codingjam.github.ui.repo.RepoViewModel
-import it.codingjam.github.ui.search.SearchViewModel
-import it.codingjam.github.ui.user.UserViewModel
+import dagger.android.AndroidInjector
+import dagger.android.support.AndroidSupportInjectionModule
+import it.codingjam.github.GithubApp
+import it.codingjam.github.NavigationController
+import it.codingjam.github.ViewLibModule
+import it.codingjam.github.api.ApiModule
+import it.codingjam.github.ui.repo.RepoModule
+import it.codingjam.github.ui.search.SearchModule
+import it.codingjam.github.ui.user.UserModule
 import javax.inject.Singleton
 
+
 @Singleton
-@Component(modules = arrayOf(AppModule::class))
-interface AppComponent {
+@Component(modules = [
+    AppModule::class,
+    ApiModule::class,
+    ViewLibModule::class,
+    AndroidInjectorActivityBindingModule::class,
+    AndroidSupportInjectionModule::class,
+    RepoModule::class,
+    SearchModule::class,
+    UserModule::class
+])
+interface AppComponent : AndroidInjector<GithubApp> {
 
-    fun inject(mainActivity: MainActivity)
+    val navigationController: NavigationController
 
-    fun searchViewModel(): SearchViewModel
+    @Component.Builder interface Builder {
+        @BindsInstance fun application(application: Application): Builder
 
-    fun repoViewModel(): RepoViewModel
-
-    fun userViewModel(): UserViewModel
+        fun build(): AppComponent
+    }
 }

@@ -16,33 +16,22 @@
 
 package it.codingjam.github
 
-import android.app.Application
-import android.arch.lifecycle.LifecycleFragment
-import android.content.Context
-import android.support.annotation.VisibleForTesting
-import it.codingjam.github.di.AppComponent
+import dagger.android.AndroidInjector
+import dagger.android.DaggerApplication
 import it.codingjam.github.di.DaggerAppComponent
 import timber.log.Timber
 
 
-class GithubApp : Application() {
+class GithubApp : DaggerApplication() {
 
-    @set:VisibleForTesting
-    lateinit var component: AppComponent
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+        return DaggerAppComponent.builder().application(this).build()
+    }
 
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
-        component = DaggerAppComponent.builder().build()
     }
 }
-
-val Context.component: AppComponent
-    get() {
-        val app = applicationContext as GithubApp
-        return app.component
-    }
-
-val LifecycleFragment.component get() = activity.component

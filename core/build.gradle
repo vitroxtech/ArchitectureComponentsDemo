@@ -1,0 +1,54 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: "kotlin-allopen"
+
+allOpen {
+    annotation("it.codingjam.github.core.AllOpen")
+}
+
+androidExtensions {
+    experimental = true
+}
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.8.5'
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.26.1"
+
+    api "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+
+    api('com.github.nalulabs.prefs-delegates:prefs-delegates:0.1') {
+        exclude group: 'org.jetbrains.kotlin'
+    }
+
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    testImplementation project(':testData')
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions{
+        freeCompilerArgs = ["-Xskip-metadata-version-check"]
+    }
+}

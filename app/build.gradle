@@ -15,20 +15,24 @@
  */
 
 apply plugin: 'com.android.application'
-apply plugin: "io.mironov.smuggler"
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'jacoco'
+apply plugin: 'kotlin-android-extensions'
+
+androidExtensions {
+    experimental = true
+}
+
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 27
     defaultConfig {
         applicationId "it.codingjam.github"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
+        testInstrumentationRunner 'it.codingjam.github.espresso.MockTestRunner'
     }
     buildTypes {
         debug {
@@ -36,22 +40,28 @@ android {
         }
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     dataBinding {
         enabled = true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
-    sourceSets {
-        androidTest.java.srcDirs += "src/test-common/java"
-        test.java.srcDirs += "src/test-common/java"
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     lintOptions {
         disable 'GoogleAppIndexingWarning'
+    }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/main.kotlin_module'
     }
 }
 
@@ -60,67 +70,25 @@ jacoco {
 }
 
 dependencies {
-    kapt 'com.android.databinding:compiler:2.3.3'
-    compile "com.android.support:appcompat-v7:$support_version"
-    compile "com.android.support:recyclerview-v7:$support_version"
-    compile "com.android.support:cardview-v7:$support_version"
-    compile "com.android.support:design:$support_version"
-    compile "android.arch.lifecycle:runtime:$arch_version"
-    compile "android.arch.lifecycle:extensions:$arch_version"
-    compile "com.squareup.retrofit2:retrofit:$retrofit_version"
-    compile "com.squareup.retrofit2:converter-gson:$retrofit_version"
-    compile "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
-    compile "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
-    compile "com.github.bumptech.glide:glide:$glide_version"
+    implementation project(':api')
+    implementation project(':core')
+    implementation project(':viewlib')
+    implementation project(':uirepo')
+    implementation project(':uiuser')
+    implementation project(':uisearch')
 
-    compile "com.google.dagger:dagger:$dagger_version"
-    compile "com.android.support.constraint:constraint-layout:$constraint_layout_version"
-
-    compile "com.jakewharton.timber:timber:$timber_version"
-
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
-    compile 'io.reactivex.rxjava2:rxkotlin:2.0.3'
+    implementation "com.jakewharton.timber:timber:$timber_version"
 
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "android.arch.lifecycle:compiler:$arch_version"
 
-    testCompile "junit:junit:$junit_version"
-    testCompile "com.squareup.okhttp3:mockwebserver:$okhttp_version"
-    testCompile ("android.arch.core:core-testing:$arch_version", {
-        exclude group: 'com.android.support', module: 'support-compat'
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.android.support', module: 'support-core-utils'
-    })
-    testCompile "org.mockito:mockito-core:$mockito_version"
-    //noinspection GradleDependency
-    testCompile 'org.assertj:assertj-core:2.5.0'
-    testCompile 'com.github.fabioCollini:DaggerMock:c36fc62ccd'
+    testImplementation project(':testData')
+    testImplementation "org.mockito:mockito-inline:$mockito_version"
 
-    androidTestCompile "com.android.support:appcompat-v7:$support_version"
-    androidTestCompile "com.android.support:recyclerview-v7:$support_version"
-    androidTestCompile "com.android.support:support-v4:$support_version"
-    androidTestCompile "com.android.support:design:$support_version"
-
-    androidTestCompile("com.android.support.test.espresso:espresso-core:$espresso_version", {
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.google.code.findbugs', module: 'jsr305'
-    })
-    androidTestCompile("com.android.support.test.espresso:espresso-contrib:$espresso_version", {
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.google.code.findbugs', module: 'jsr305'
-    })
-
-    androidTestCompile("android.arch.core:core-testing:$arch_version", {
-    })
-    androidTestCompile 'com.github.tmurakami:dexopener:0.9.8'
-    androidTestCompile "org.mockito:mockito-android:$mockito_version"
-    androidTestCompile('com.nhaarman:mockito-kotlin-kt1.1:1.5.0') {
-        exclude group: 'org.jetbrains.kotlin'
-    }
-    androidTestCompile 'com.github.fabioCollini:DaggerMock:c36fc62ccd'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    kaptAndroidTest "com.google.dagger:dagger-compiler:$dagger_version"
+    androidTestImplementation project(':androidTestLib')
+    androidTestImplementation project(':testData')
 }
 
 task fullCoverageReport(type: JacocoReport) {
@@ -135,7 +103,6 @@ task fullCoverageReport(type: JacocoReport) {
                       '**/*Test*.*', 'android/**/*.*',
                       'com/android/databinding/**/*.class',
                       '**/databinding/*.class',
-                      '**/*AutoValue_*.class',
                       '**/*_MembersInjector.class',
                       '**/Dagger*Component.class',
                       '**/Dagger*Component$Builder.class',
